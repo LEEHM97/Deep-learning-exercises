@@ -28,7 +28,7 @@ def split_data(x, y, train_ratio=.8):
     indices = torch.randperm(x.size(0))
     x = torch.index_select(
         x,
-        dim=0
+        dim=0,
         index=indices
     ).split([train_cnt, valid_cnt], dim=0)
     
