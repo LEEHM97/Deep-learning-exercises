@@ -12,6 +12,7 @@ class Trainer():
         
         super().__init__()
         
+        
     def _batchfy(self, x, y, batch_size, random_split=True):
         if random_split:
             indices = torch.randperm(x.size(0), device=x.device)
@@ -22,6 +23,7 @@ class Trainer():
         y = y.split(batch_size, dim=0)    
         
         return x, y
+        
         
     def _train(self, x, y, config):
         self.model.train()
@@ -46,10 +48,26 @@ class Trainer():
             total_loss += float(loss_i)
         return total_loss / len(x)
     
+    
     def _validate(self, x, y, config):
-        # 
-    
-    
+        # Turn evalutaion mode on
+        self.model.eval()
+        
+        # Turn on the no_grad mode to make more dfficiently
+        with torch.no_grad():
+            x, y = self._batchfy(x, y, config.batch_size, random_split=False)
+            total_loss = 0
+            
+            for i, (x_i, y_i) in enumerate(zip(x, y)):
+                y_hat_i = self.model(x_i)
+                loss_i = self.crit(y_hat_i, y_i.sqeeze())
+                
+                if config.Verbose >= 2:
+                    print("Valid Iteration(%d/%d): loss=%.4e" %(i+1, len(x), float(loss_i)))
+                
+                total_loss += float(loss_i)
+                
+            return total_loss / len(x)    
     
     
     def train(self, train_data, valid_data, config):
